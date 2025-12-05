@@ -56,7 +56,7 @@ var containers = [
   }
 ]
 
-resource account 'Microsoft.DocumentDB/databaseAccounts@2022-11-15' = {
+resource account 'Microsoft.DocumentDB/databaseAccounts@2025-10-15' = {
   name: toLower(accountName)
   kind: 'GlobalDocumentDB'
   location: location
@@ -76,7 +76,7 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2022-11-15' = {
   }
 }
 
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-11-15' = {
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2025-10-15' = {
   parent: account
   name: databaseName
   properties: {
@@ -91,7 +91,7 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-11-15
   }
 }
 
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-11-15' = [for (config, i) in containers: {
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2025-10-15' = [for (config, i) in containers: {
   parent: database
   name: config.name
   properties: {
@@ -124,7 +124,7 @@ resource roleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinition
   name: '00000000-0000-0000-0000-000000000002'
 }
 
-resource apiRoleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-08-15' = {
+resource apiRoleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2025-10-15' = {
   name: guid(apiPrincipalId, roleDefinition.id, account.id)
   parent: account
   properties: {
@@ -134,7 +134,7 @@ resource apiRoleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleA
   }
 }
 
-resource workerRoleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-08-15' = {
+resource workerRoleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2025-10-15' = {
   name: guid(workerPrincipalId, roleDefinition.id, account.id)
   parent: account
   properties: {

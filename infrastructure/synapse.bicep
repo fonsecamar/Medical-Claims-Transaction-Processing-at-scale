@@ -12,16 +12,16 @@ var storageContainerName = 'claimsfs'
 @description('Cosmos DB account name')
 param cosmosAccountName string
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' existing = {
   name: storageAccountName
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' existing = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2025-06-01' existing = {
   parent: storageAccount
   name: 'default'
 }
 
-resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2025-06-01' = {
   parent: blobServices
   name: storageContainerName
   properties: {
@@ -56,17 +56,17 @@ resource synapsefirewall 'Microsoft.Synapse/workspaces/firewallRules@2021-06-01'
 }
 
 // Grant Permissions to Identity for CosmosDB
-resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' existing = {
+resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2025-10-15' existing = {
   name: cosmosAccountName
 }
 
 @description('This is the built-in "Cosmos DB Built-in Data Contributor" role. https://learn.microsoft.com/en-us/azure/cosmos-db/how-to-setup-rbac#built-in-role-definitions')
-resource roleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-11-15' existing = {
+resource roleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2025-10-15' existing = {
   parent: cosmos
   name: '00000000-0000-0000-0000-000000000002'
 }
 
-resource roleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-08-15' = {
+resource roleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2025-10-15' = {
   name: guid(roleDefinition.id, cosmos.id, 'Synapse')
   parent: cosmos
   properties: {
@@ -78,12 +78,12 @@ resource roleAssignmentCosmos 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssi
 
 // Grant Permissions to Identity for Storage
 @description('This is the built-in "Storage Blob Data Contributor" role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor')
-resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
   name: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 }
 
-resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+resource storage 'Microsoft.Storage/storageAccounts@2025-06-01' existing = {
   name: storageAccountName
 }
 

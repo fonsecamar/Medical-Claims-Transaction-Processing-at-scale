@@ -7,7 +7,7 @@ param location string = resourceGroup().location
 @description('OpenAI deployments')
 param deployments array = []
 
-resource openAiAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
+resource openAiAccount 'Microsoft.CognitiveServices/accounts@2025-09-01' = {
   name: openAiName
   location: location
   kind: 'OpenAI'
@@ -19,7 +19,7 @@ resource openAiAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
 }
 
 @batchSize(1)
-resource openAiDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for deployment in deployments: {
+resource openAiDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-09-01' = [for deployment in deployments: {
   parent: openAiAccount
   name: deployment.name
   properties: {

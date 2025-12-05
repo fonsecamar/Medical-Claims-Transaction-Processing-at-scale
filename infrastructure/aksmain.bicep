@@ -5,6 +5,9 @@ param suffix string = uniqueString(resourceGroup().id)
 @description('Location for resource deployment')
 param location string = resourceGroup().location
 
+@description('The principal ID of the deployer for storage permissions')
+param deployerPrincipalId string = ''
+
 var appName = 'coreclaims-${suffix}'
 var serviceNames = {
   aks: replace('aks-${appName}', '-', '')
@@ -128,6 +131,7 @@ module staticwebsite 'staticwebsite.bicep' = {
   params: {
     storageAccountName: serviceNames.webStorage
     location: location
+    deployerPrincipalId: deployerPrincipalId
   }
 }
 

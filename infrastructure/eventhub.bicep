@@ -12,7 +12,7 @@ param workerPrincipalId string
 
 var eventHubs = ['IncomingClaim', 'RejectedClaim', 'ClaimApproved', 'ClaimDenied', 'AdjudicatorChanged']
 
-resource namespace 'Microsoft.EventHub/namespaces@2022-10-01-preview' = {
+resource namespace 'Microsoft.EventHub/namespaces@2024-01-01' = {
   name: eventHubNamespace
   location: location
   sku: {
@@ -22,7 +22,7 @@ resource namespace 'Microsoft.EventHub/namespaces@2022-10-01-preview' = {
   }
 }
 
-resource hubs 'Microsoft.EventHub/namespaces/eventhubs@2022-10-01-preview' = [for eh in eventHubs: {
+resource hubs 'Microsoft.EventHub/namespaces/eventhubs@2024-01-01' = [for eh in eventHubs: {
   name: eh
   parent: namespace
   properties: {
@@ -34,7 +34,7 @@ resource hubs 'Microsoft.EventHub/namespaces/eventhubs@2022-10-01-preview' = [fo
 
 // Grant Permissions to Identity for EventHub
 @description('This is the built-in "Azure Event Hubs Data Owner" role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-event-hubs-data-owner')
-resource eventHubDataOwnerRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource eventHubDataOwnerRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
   name: 'f526a384-b230-433a-b45c-95f59c4a2dec'
 }

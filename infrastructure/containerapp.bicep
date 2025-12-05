@@ -25,11 +25,8 @@ param openAiCompletionsDeployment string
 @description('App Insights connection string')
 param aiConnectionString string
 
-@description('Log Analytics Customer ID')
-param laCustomerId string
-
-@description('Log Analytics shared key')
-param laSharedKey string
+@description('Log Analytics Workspace Resource ID')
+param laWorkspaceId string
 
 @description('API MI Client ID')
 param apiClientId string
@@ -182,7 +179,7 @@ var containerAppConfigs = [
   }
 ]
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2025-01-01' = {
   name: 'vnet-${name}'
   location: location
   properties: {
@@ -213,7 +210,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   }
 }
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-11-01' = {
   location: location
 #disable-next-line BCP334
   name: '${replace(name, '-', '')}cr'
@@ -225,15 +222,15 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
   }
 }
 
-resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
+resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2025-07-01' = {
   name: 'acaenv-${name}'
   location: location
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
-        customerId: laCustomerId
-        sharedKey: laSharedKey
+        customerId: reference(laWorkspaceId, '2025-07-01').customerId
+        sharedKey: listKeys(laWorkspaceId, '2025-07-01').primarySharedKey
       }
     }
     infrastructureResourceGroup: 'ME_${resourceGroup().name}'
@@ -257,7 +254,7 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' 
   }
 }
 
-resource containerApps 'Microsoft.App/containerApps@2023-05-01' = [for (config, i) in containerAppConfigs: {
+resource containerApps 'Microsoft.App/containerApps@2025-07-01' = [for (config, i) in containerAppConfigs: {
   name: 'aca-${config.name}-${name}'
   location: location
   identity: config.identity

@@ -14,6 +14,9 @@ param openAiDeployment string = 'completions'
 @description('OpenAI resource group')
 param openAiRg string = resourceGroup().name
 
+@description('The principal ID of the deployer for storage permissions')
+param deployerPrincipalId string = ''
+
 var appName = 'coreclaims-${suffix}'
 var serviceNames = {
   aks: replace('aks-${appName}', '-', '')
@@ -105,7 +108,7 @@ module logAnalytics 'loganalytics.bicep' = {
   }
 }
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
+resource openAi 'Microsoft.CognitiveServices/accounts@2025-09-01' existing = {
   name: openAiName
   scope: resourceGroup(openAiRg)
 }
@@ -116,8 +119,7 @@ module containerApps 'containerapp.bicep' = {
     aiConnectionString: logAnalytics.outputs.aiConnectionString
     cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
     dataLakeAccountName: serviceNames.storage
-    laCustomerId: logAnalytics.outputs.laCustomerId
-    laSharedKey: logAnalytics.outputs.laSharedKey
+    laWorkspaceId: logAnalytics.outputs.laWorkspaceId
     location: location
     name: appName
     openAiCompletionsDeployment: openAiDeployment
@@ -131,12 +133,12 @@ module containerApps 'containerapp.bicep' = {
   }
 }
 
-resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: serviceNames.apimi
   location: location
 }
 
-resource workerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource workerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: serviceNames.workermi
   location: location
 }
@@ -146,6 +148,7 @@ module staticwebsite 'staticwebsite.bicep' = {
   params: {
     storageAccountName: serviceNames.webStorage
     location: location
+    deployerPrincipalId: deployerPrincipalId
   }
 }
 

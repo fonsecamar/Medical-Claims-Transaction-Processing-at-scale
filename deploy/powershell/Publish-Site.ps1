@@ -21,7 +21,17 @@ npm run build
 Write-Host "===========================================================" -ForegroundColor Yellow
 Write-Host " Deploying to website" -ForegroundColor Yellow
 Write-Host "===========================================================" -ForegroundColor Yellow
-az storage azcopy blob upload -c `$web --account-name $storageAccount -s './out/*' --recursive
+
+# Enable static website first
+Write-Host "Enabling static website on storage account $storageAccount..." -ForegroundColor Cyan
+az storage blob service-properties update `
+    --account-name $storageAccount `
+    --static-website `
+    --index-document index.html `
+    --404-document index.html `
+    --auth-mode login
+
+az storage blob upload-batch -d `$web --account-name $storageAccount -s ./out --auth-mode login
 
 $webUri=(az storage account show --name $storageAccount --resource-group $resourceGroup --query "primaryEndpoints.web" -o tsv)
 
