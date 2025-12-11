@@ -4,6 +4,7 @@ const path = require('path');
 const nextConfig = {
     output: 'export',
     outputFileTracingRoot: path.join(__dirname),
+    trailingSlash: true,
     webpack: (config) => {
         config.resolve.fallback = {
             ...config.resolve.fallback,

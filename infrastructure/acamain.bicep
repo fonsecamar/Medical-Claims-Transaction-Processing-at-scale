@@ -29,8 +29,6 @@ var serviceNames = {
   identity: 'id-${appName}'
   webStorage: replace('web-${appName}', '-', '')
   openAi: 'openai-${appName}'
-  apimi: 'mi-api-${appName}'
-  workermi: 'mi-worker-${appName}'
   ai: 'ai-${appName}'
 }
 
@@ -40,8 +38,6 @@ module storage 'storage.bicep' = {
   params: {
     storageAccountName: serviceNames.storage
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -51,8 +47,6 @@ module cosmosDb 'cosmos.bicep' = {
   params: {
     accountName: serviceNames.cosmosDb
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -62,8 +56,6 @@ module eventHub 'eventhub.bicep' = {
   params: {
     eventHubNamespace: serviceNames.eventHub
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -105,8 +97,6 @@ module openAi 'openai.bicep' = if (!isExternalRg) {
         version: '2024-11-20'
       }
     ]
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -124,8 +114,6 @@ module openAiExternal 'openai.bicep' = if (isExternalRg) {
         version: '2024-11-20'
       }
     ]
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -141,21 +129,22 @@ module containerApps 'containerapp.bicep' = {
     openAiCompletionsDeployment: openAiDeployment
     openAiEndpoint: isExternalRg ? openAiExternal!.outputs.endpoint : openAi!.outputs.endpoint
     suffix: suffix
-    workerClientId: workerIdentity.properties.clientId
-    apiClientId: apiIdentity.properties.clientId
-    apiMiId: apiIdentity.id
-    workerMiId: workerIdentity.id
   }
 }
 
-resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: serviceNames.apimi
-  location: location
-}
-
-resource workerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: serviceNames.workermi
-  location: location
+// Assign permissions after Container Apps are created with System-Assigned Identity
+module permissions 'permissions.bicep' = {
+  name: 'permissionsDeploy'
+  params: {
+    cosmosAccountName: serviceNames.cosmosDb
+    eventHubNamespaceName: serviceNames.eventHub
+    storageAccountName: serviceNames.storage
+    openAiName: finalOpenAiName
+    openAiResourceGroup: openAiRg
+    apiPrincipalId: containerApps.outputs.apiPrincipalId
+    workerPrincipalId: containerApps.outputs.workerPrincipalId
+    deployerPrincipalId: deployerPrincipalId
+  }
 }
 
 module staticwebsite 'staticwebsite.bicep' = {
@@ -178,10 +167,6 @@ output config object = {
   openAiName: finalOpenAiName
   openAiRg: openAiRg
   openAiCompletionsDeployment: openAiDeployment
-  apiClientId: apiIdentity.properties.clientId
-  workerClientId: workerIdentity.properties.clientId
-  publisherClientId: apiIdentity.properties.clientId
-  tenantId: tenant().tenantId
   aiConnectionString: logAnalytics.outputs.aiConnectionString
   apiUrl: 'https://${containerApps.outputs.apiFqdn}/api'
   webappHostname: containerApps.outputs.apiFqdn

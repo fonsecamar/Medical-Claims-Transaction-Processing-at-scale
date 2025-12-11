@@ -25,24 +25,11 @@ param aiConnectionString string
 @description('Log Analytics Workspace Resource ID')
 param laWorkspaceId string
 
-@description('API MI Client ID')
-param apiClientId string
-
-@description('API MI Resource ID')
-param apiMiId string
-
-@description('Worker MI Client ID')
-param workerClientId string
-
-@description('Worker MK Resource ID')
-param workerMiId string
-
 var containerAppConfigs = [
   {
     name: 'api'
     identity: {
-      type: 'UserAssigned'
-      userAssignedIdentities: { '${apiMiId}': {} }
+      type: 'SystemAssigned'
     }
     ingress: {
       allowInsecure: false
@@ -103,10 +90,6 @@ var containerAppConfigs = [
         value: openAiCompletionsDeployment
       }
       {
-        name: 'AZURE_CLIENT_ID'
-        value: apiClientId
-      }
-      {
         name: 'ApplicationInsights__ConnectionString'
         value: aiConnectionString
       }
@@ -119,8 +102,7 @@ var containerAppConfigs = [
   {
     name: 'worker'
     identity: {
-      type: 'UserAssigned'
-      userAssignedIdentities: { '${workerMiId}': {} }
+      type: 'SystemAssigned'
     }
     ingress: null
     env: [
@@ -155,10 +137,6 @@ var containerAppConfigs = [
       {
         name: 'BusinessRuleOptions__DemoManagerAdjudicatorId'
         value: 'a735bf55-83e9-331a-899d-a82a60b9f60c'
-      }
-      {
-        name: 'AZURE_CLIENT_ID'
-        value: workerClientId
       }
       {
         name: 'ApplicationInsights__ConnectionString'
@@ -281,4 +259,12 @@ resource containerApps 'Microsoft.App/containerApps@2025-07-01' = [for (config, 
   }
 }]
 
+// Export principal IDs for permission assignment
+output apiPrincipalId string = containerApps[0].identity.principalId
+output workerPrincipalId string = containerApps[1].identity.principalId
+
+// Export FQDN for configuration
 output apiFqdn string = containerApps[0].properties.configuration.ingress.fqdn
+
+// NOTE: INTENTIONALLY NO OUTPUT FOR CREDENTIALS
+output mainUrl string = 'https://${containerApps[0].properties.configuration.ingress.fqdn}'

@@ -46,7 +46,6 @@ env:
     - name: BusinessRuleOptions__DemoManagerAdjudicatorId
     - name: RulesEngine__OpenAIEndpoint
     - name: RulesEngine__OpenAICompletionsDeployment
-    - name: AZURE_CLIENT_ID
   secret:
     - name: ApplicationInsights__ConnectionString
   values:

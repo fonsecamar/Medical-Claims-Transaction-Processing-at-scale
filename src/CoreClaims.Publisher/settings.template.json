@@ -10,9 +10,6 @@
   },
   "CoreClaimsEventHub": {
     "fullyQualifiedNamespace": "{{eventHubNamespace}}"
-  },
-  "Identity": {
-    "AZURE_CLIENT_ID": "{{publisherClientId}}"
   }
 }
 

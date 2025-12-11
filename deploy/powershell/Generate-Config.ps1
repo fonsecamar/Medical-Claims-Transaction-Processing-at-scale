@@ -56,10 +56,6 @@ $tokens.dataLakeAccountName = $bicepConfig.dataLakeAccountName
 $tokens.eventHubNamespace = $bicepConfig.eventHubNamespace
 $tokens.openAiEndpoint = $openAi.properties.endpoint
 $tokens.openAiCompletionsDeployment = $bicepConfig.openAiCompletionsDeployment
-$tokens.apiClientId = $bicepConfig.apiClientId
-$tokens.workerClientId = $bicepConfig.workerClientId
-$tokens.publisherClientId = $bicepConfig.publisherClientId
-$tokens.tenantId = $bicepConfig.tenantId
 $tokens.aiConnectionString = if ($bicepConfig.aiConnectionString) { $bicepConfig.aiConnectionString } else { $aiConnectionString }
 $tokens.apiUrl = $apiUrl
 

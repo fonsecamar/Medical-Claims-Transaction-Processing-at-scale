@@ -45,11 +45,11 @@ namespace CoreClaims.Publisher
 
             if (string.IsNullOrEmpty(config[Constants.Connections.CosmosDbEndpoint]))
             {
-                Console.Error.WriteLine($"Missing config value: {Constants.Connections.EventHubNamespace}");
+                Console.Error.WriteLine($"Missing config value: {Constants.Connections.CosmosDbEndpoint}");
                 return;
             }
             
-            var client = new CosmosClientBuilder(config[Constants.Connections.CosmosDbEndpoint])
+            var client = new CosmosClientBuilder(config[Constants.Connections.CosmosDbEndpoint], new DefaultAzureCredential())
                 .Build();
 
             Console.WriteLine("Loading Members...");

@@ -40,8 +40,6 @@ module storage 'storage.bicep' = {
   params: {
     storageAccountName: serviceNames.storage
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -51,8 +49,6 @@ module cosmosDb 'cosmos.bicep' = {
   params: {
     accountName: serviceNames.cosmosDb
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -62,8 +58,6 @@ module eventHub 'eventhub.bicep' = {
   params: {
     eventHubNamespace: serviceNames.eventHub
     location: location
-    apiPrincipalId: apiIdentity.properties.principalId
-    workerPrincipalId: workerIdentity.properties.principalId
   }
 }
 
@@ -154,10 +148,6 @@ output config object = {
   openAiName: !empty(openAiName) ? openAiName : serviceNames.openAi
   openAiRg: openAiRg
   openAiCompletionsDeployment: openAiDeployment
-  apiClientId: apiIdentity.properties.clientId
-  workerClientId: workerIdentity.properties.clientId
-  publisherClientId: apiIdentity.properties.clientId
-  tenantId: tenant().tenantId
 }
 
 output staticWebsiteUrl string = staticwebsite.outputs.staticWebsiteUrl

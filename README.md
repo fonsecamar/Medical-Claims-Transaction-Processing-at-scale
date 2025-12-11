@@ -41,21 +41,9 @@ If you make changes to the React web app and want to redeploy it, run the follow
                      -storageAccount <storage-account-name (webcoreclaimsxxxx)>
 ```
 
-### Setting RBAC permissions when running locally
+### Running locally
 
-When you run the solution locally, you will need to set role-based access control (RBAC) permissions on the Azure Cosmos DB account as well as the Azure Event Hubs namespace. You can do this by running the following commands in the Azure Cloud Shell or Azure CLI:
-
-Assign yourself to the "Cosmos DB Built-in Data Contributor" role:
-
-```bash
-az cosmosdb sql role assignment create --account-name YOUR_COSMOS_DB_ACCOUNT_NAME --resource-group YOUR_RESOURCE_GROUP_NAME --scope "/" --principal-id YOUR_AZURE_AD_PRINCIPAL_ID --role-definition-id 00000000-0000-0000-0000-000000000002
-```
-
-The Web API triggers Event Hubs events, and the Worker Service consumes them. You will need to assign yourself to the "Azure Event Hubs Data Owner" role:
-
-```bash
-az role assignment create --assignee "YOUR_EMAIL_ADDRESS" --role "Azure Event Hubs Data Owner" --scope "/subscriptions/YOUR_AZURE_SUBSCRIPTION_ID/resourceGroups/YOUR_RESOURCE_GROUP_NAME/providers/Microsoft.EventHub/namespaces/YOUR_EVENT_HUBS_NAMESPACE"
-```
+When you run the solution locally, RBAC permissions for Azure Cosmos DB and Azure Event Hubs are automatically configured during deployment using your Azure user principal ID. 
 
 > Make sure you're signed in to Azure from Visual Studio 2026 before running the backend applications locally.
 
@@ -130,14 +118,11 @@ You can also work directly with the REST API by calling the Azure Function App A
   },
   "CoreClaimsEventHub": {
     "fullyQualifiedNamespace": "*YOUR_EH_NAME*.servicebus.windows.net"
-  },
-  "Identity": {
-    "AZURE_CLIENT_ID": "*YOUR_MANAGED_IDENTITY_CLIENT_ID*"
   }
 }
 ```
 
-> **Note**: The application uses Entra ID (Managed Identity) authentication. Make sure you have the required RBAC permissions configured (see [Setting RBAC permissions when running locally](#setting-rbac-permissions-when-running-locally)).
+> **Note**: When running locally in DEBUG mode, the application uses `DefaultAzureCredential` which automatically authenticates using your Azure CLI or Visual Studio credentials.
 
 ```bash
 cd ../src/CoreClaims.Publisher
