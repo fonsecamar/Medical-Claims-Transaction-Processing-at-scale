@@ -12,7 +12,6 @@ businessRuleOptions:
   demoManagerAdjudicatorId: a735bf55-83e9-331a-899d-a82a60b9f60c
 rulesEngine:
   openAiEndpoint: "{{openAiEndpoint}}"
-  openAiKey: "{{openAiKey}}"
   openAiCompletionsDeployment: "{{openAiCompletionsDeployment}}"
 azureWorkloadIdentity:
   apiClientId: {{apiClientId}}

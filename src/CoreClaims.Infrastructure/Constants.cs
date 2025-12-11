@@ -26,7 +26,7 @@
     
         public static class Identity
         {
-            public const string ClientId = "ClientId";
+            public const string ClientId = "AZURE_CLIENT_ID";
         }
     }
 }

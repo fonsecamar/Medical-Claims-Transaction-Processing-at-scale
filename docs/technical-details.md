@@ -358,4 +358,4 @@ A bicep definition of the required infrastructure will be created containing the
 | Storage Account    | `adl-coreclaims-demo`     | Storage account for Azure Data Lake storage of initial seed data for synapse processing                 |
 | Synapse workspace  | `synapse-coreclaims-demo` | Synapse notebook for running initial seed scripts                                                       |
 | Apache Spark Pool  | `SeedData`                | Spark pool used by synapse                                                                              |
-| Azure Container Registry | `acr-coreclaims-demo` | Container registry for storing docker images for AKS deployment                                        |
+| Azure Container Registry | `acr-coreclaims-demo` | Container registry for storing container images. Images are built using ACR Tasks (cloud-based build). |

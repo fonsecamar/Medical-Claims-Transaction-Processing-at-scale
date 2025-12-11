@@ -16,9 +16,6 @@ param cosmosEndpoint string
 @description('OpenAI Endpoint')
 param openAiEndpoint string
 
-@description('OpenAI Key')
-param openAiKey string
-
 @description('OpenAI Completions deployment')
 param openAiCompletionsDeployment string
 
@@ -55,7 +52,7 @@ var containerAppConfigs = [
       stickySessions: {
         affinity: 'sticky'
       }
-      targetPort: 80
+      targetPort: 8080
       traffic: [
         {
           latestRevision: true
@@ -102,12 +99,12 @@ var containerAppConfigs = [
         value: openAiEndpoint
       }
       {
-        name: 'RulesEngine__OpenAIKey'
-        value: openAiKey
-      }
-      {
         name: 'RulesEngine__OpenAICompletionsDeployment'
         value: openAiCompletionsDeployment
+      }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: apiClientId
       }
       {
         name: 'ApplicationInsights__ConnectionString'
@@ -116,10 +113,6 @@ var containerAppConfigs = [
       {
         name: 'ASPNETCORE_ENVIRONMENT'
         value: 'Production'
-      }
-      {
-        name: 'ClientId'
-        value: apiClientId
       }
     ]
   }
@@ -164,7 +157,7 @@ var containerAppConfigs = [
         value: 'a735bf55-83e9-331a-899d-a82a60b9f60c'
       }
       {
-        name: 'ClientId'
+        name: 'AZURE_CLIENT_ID'
         value: workerClientId
       }
       {
@@ -287,3 +280,5 @@ resource containerApps 'Microsoft.App/containerApps@2025-07-01' = [for (config, 
     workloadProfileName: 'Warm'
   }
 }]
+
+output apiFqdn string = containerApps[0].properties.configuration.ingress.fqdn

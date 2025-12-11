@@ -5,13 +5,13 @@ param suffix string = uniqueString(resourceGroup().id)
 @description('Location for resource deployment')
 param location string = resourceGroup().location
 
-@description('OpenAi Name')
-param openAiName string = 'openai-coreclaims-${suffix}'
+@description('OpenAI service name')
+param openAiName string = ''
 
-@description('OpenAi Deployment')
+@description('OpenAI deployment name')
 param openAiDeployment string = 'completions'
 
-@description('OpenAI resource group')
+@description('OpenAI resource group (defaults to current resource group)')
 param openAiRg string = resourceGroup().name
 
 @description('The principal ID of the deployer for storage permissions')
@@ -80,26 +80,6 @@ module synapse 'synapse.bicep' = {
   dependsOn: [storage, cosmosDb]
 }
 
-// module openAi 'openai.bicep' = {
-//   name: 'openAiDeploy'
-//   scope: resourceGroup() // Deployments with existing OpenAi (different resource group) will have to be properly adjust this
-//   params: {
-//     openAiName: serviceNames.openAi
-//     location: location
-//     deployments: [
-//       {
-//         name: openAiDeployment
-//         model: 'gpt-35-turbo'
-//         version: '0301'
-//         sku: {
-//           name: 'Standard'
-//           capacity: 60
-//         }
-//       }
-//     ]
-//   }
-// }
-
 module logAnalytics 'loganalytics.bicep' = {
   name: 'logAnalyticsDeploy'
   params: {
@@ -108,9 +88,45 @@ module logAnalytics 'loganalytics.bicep' = {
   }
 }
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2025-09-01' existing = {
-  name: openAiName
+// Determine OpenAI configuration (idempotent - always creates if not exists)
+var finalOpenAiName = !empty(openAiName) ? openAiName : serviceNames.openAi
+var isExternalRg = openAiRg != resourceGroup().name
+
+// Deploy OpenAI in same resource group (idempotent)
+module openAi 'openai.bicep' = if (!isExternalRg) {
+  name: 'openAiDeploy'
+  params: {
+    openAiName: finalOpenAiName
+    location: location
+    deployments: [
+      {
+        name: openAiDeployment
+        model: 'gpt-4o'
+        version: '2024-11-20'
+      }
+    ]
+    apiPrincipalId: apiIdentity.properties.principalId
+    workerPrincipalId: workerIdentity.properties.principalId
+  }
+}
+
+// Deploy OpenAI in external resource group (idempotent)
+module openAiExternal 'openai.bicep' = if (isExternalRg) {
+  name: 'openAiExternalDeploy'
   scope: resourceGroup(openAiRg)
+  params: {
+    openAiName: finalOpenAiName
+    location: location
+    deployments: [
+      {
+        name: openAiDeployment
+        model: 'gpt-4o'
+        version: '2024-11-20'
+      }
+    ]
+    apiPrincipalId: apiIdentity.properties.principalId
+    workerPrincipalId: workerIdentity.properties.principalId
+  }
 }
 
 module containerApps 'containerapp.bicep' = {
@@ -123,8 +139,7 @@ module containerApps 'containerapp.bicep' = {
     location: location
     name: appName
     openAiCompletionsDeployment: openAiDeployment
-    openAiEndpoint: openAi.properties.endpoint
-    openAiKey: openAi.listKeys().key1
+    openAiEndpoint: isExternalRg ? openAiExternal!.outputs.endpoint : openAi!.outputs.endpoint
     suffix: suffix
     workerClientId: workerIdentity.properties.clientId
     apiClientId: apiIdentity.properties.clientId
@@ -150,6 +165,26 @@ module staticwebsite 'staticwebsite.bicep' = {
     location: location
     deployerPrincipalId: deployerPrincipalId
   }
+}
+
+// Outputs for Generate-Config (eliminates az cli calls)
+output config object = {
+  suffix: suffix
+  cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
+  dataLakeEndpoint: 'https://${serviceNames.storage}.dfs.${environment().suffixes.storage}'
+  dataLakeAccountName: serviceNames.storage
+  eventHubNamespace: '${serviceNames.eventHub}.servicebus.windows.net'
+  openAiEndpoint: isExternalRg ? openAiExternal!.outputs.endpoint : openAi!.outputs.endpoint
+  openAiName: finalOpenAiName
+  openAiRg: openAiRg
+  openAiCompletionsDeployment: openAiDeployment
+  apiClientId: apiIdentity.properties.clientId
+  workerClientId: workerIdentity.properties.clientId
+  publisherClientId: apiIdentity.properties.clientId
+  tenantId: tenant().tenantId
+  aiConnectionString: logAnalytics.outputs.aiConnectionString
+  apiUrl: 'https://${containerApps.outputs.apiFqdn}/api'
+  webappHostname: containerApps.outputs.apiFqdn
 }
 
 output staticWebsiteUrl string = staticwebsite.outputs.staticWebsiteUrl

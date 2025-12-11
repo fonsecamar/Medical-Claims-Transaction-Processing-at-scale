@@ -57,7 +57,7 @@ The Web API triggers Event Hubs events, and the Worker Service consumes them. Yo
 az role assignment create --assignee "YOUR_EMAIL_ADDRESS" --role "Azure Event Hubs Data Owner" --scope "/subscriptions/YOUR_AZURE_SUBSCRIPTION_ID/resourceGroups/YOUR_RESOURCE_GROUP_NAME/providers/Microsoft.EventHub/namespaces/YOUR_EVENT_HUBS_NAMESPACE"
 ```
 
-> Make sure you're signed in to Azure from Visual Studio before running the backend applications locally.
+> Make sure you're signed in to Azure from Visual Studio 2026 before running the backend applications locally.
 
 ## Quickstart
 
@@ -117,7 +117,7 @@ You can also work directly with the REST API by calling the Azure Function App A
 > as well as **"BatchSize"** (default - 10), **"Verbose"** (default - True) and **"SleepTime"** (default - 1000 ms).
 >
 >  *settings.json* example:
-```
+```json
 {
   "GeneratorOptions": {
     "RunMode": "OneTime",
@@ -126,13 +126,18 @@ You can also work directly with the REST API by calling the Azure Function App A
     "SleepTime": 1000
   },
   "CoreClaimsCosmosDB": {
-    "accountEndpoint": "AccountEndpoint=https://*COSMOS_ACC_NAME*.documents.azure.com:443/;AccountKey=*COSMOS_ACC_KEY*;"
+    "accountEndpoint": "https://*COSMOS_ACC_NAME*.documents.azure.com:443/"
   },
   "CoreClaimsEventHub": {
-    "fullyQualifiedNamespace": "Endpoint=sb://*YOUR_EH_NAME*.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=*EH_KEY*"
+    "fullyQualifiedNamespace": "*YOUR_EH_NAME*.servicebus.windows.net"
+  },
+  "Identity": {
+    "AZURE_CLIENT_ID": "*YOUR_MANAGED_IDENTITY_CLIENT_ID*"
   }
 }
 ```
+
+> **Note**: The application uses Entra ID (Managed Identity) authentication. Make sure you have the required RBAC permissions configured (see [Setting RBAC permissions when running locally](#setting-rbac-permissions-when-running-locally)).
 
 ```bash
 cd ../src/CoreClaims.Publisher

@@ -8,6 +8,15 @@ param location string = resourceGroup().location
 @description('The principal ID of the deployer for storage permissions')
 param deployerPrincipalId string = ''
 
+@description('OpenAI service name')
+param openAiName string = ''
+
+@description('OpenAI deployment name')
+param openAiDeployment string = 'completions'
+
+@description('OpenAI resource group (defaults to current resource group)')
+param openAiRg string = resourceGroup().name
+
 var appName = 'coreclaims-${suffix}'
 var serviceNames = {
   aks: replace('aks-${appName}', '-', '')
@@ -133,6 +142,22 @@ module staticwebsite 'staticwebsite.bicep' = {
     location: location
     deployerPrincipalId: deployerPrincipalId
   }
+}
+
+// Outputs for Generate-Config (eliminates most az cli calls)
+output config object = {
+  suffix: suffix
+  cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
+  dataLakeEndpoint: 'https://${serviceNames.storage}.dfs.${environment().suffixes.storage}'
+  dataLakeAccountName: serviceNames.storage
+  eventHubNamespace: '${serviceNames.eventHub}.servicebus.windows.net'
+  openAiName: !empty(openAiName) ? openAiName : serviceNames.openAi
+  openAiRg: openAiRg
+  openAiCompletionsDeployment: openAiDeployment
+  apiClientId: apiIdentity.properties.clientId
+  workerClientId: workerIdentity.properties.clientId
+  publisherClientId: apiIdentity.properties.clientId
+  tenantId: tenant().tenantId
 }
 
 output staticWebsiteUrl string = staticwebsite.outputs.staticWebsiteUrl

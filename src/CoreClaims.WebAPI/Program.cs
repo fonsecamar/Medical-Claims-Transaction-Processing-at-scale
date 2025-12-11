@@ -26,11 +26,20 @@ namespace CoreClaims.WebAPI
 
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
-            //builder.Logging.AddApplicationInsights(
-            //    configureTelemetryConfiguration: (config) =>
-            //        config.ConnectionString = builder.Configuration.GetValue<string>("APPLICATIONINSIGHTS_CONNECTION_STRING"),
-            //    configureApplicationInsightsLoggerOptions: (options) => { }
-            //);
+            
+            // Application Insights with Entra ID authentication
+            var aiConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+            if (!string.IsNullOrEmpty(aiConnectionString))
+            {
+                builder.Logging.AddApplicationInsights(
+                    configureTelemetryConfiguration: (config) =>
+                    {
+                        config.ConnectionString = aiConnectionString;
+                        config.SetAzureTokenCredential(new DefaultAzureCredential());
+                    },
+                    configureApplicationInsightsLoggerOptions: (options) => { }
+                );
+            }
 
             // Add services to the container.
             //builder.Services.AddAuthorization();
@@ -103,6 +112,9 @@ namespace CoreClaims.WebAPI
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+            
+            // CORS must be called before endpoints are mapped
+            app.UseCors(allowAllCorsOrigins);
 
             // Map the REST endpoints:
             using (var scope = app.Services.CreateScope())
@@ -116,8 +128,6 @@ namespace CoreClaims.WebAPI
                     item.AddRoutes(app);
                 }
             }
-
-            app.UseCors(allowAllCorsOrigins);
 
             //app.UseAuthorization();
 
