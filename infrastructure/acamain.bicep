@@ -24,21 +24,10 @@ var serviceNames = {
   functionApp: replace('fa-${appName}', '-', '')
   servicePlan: 'asp-${appName}'
   eventHub: replace('eh-${appName}', '-', '')
-  storage: replace('adl-${appName}', '-', '')
-  synapse: 'synapse-${appName}'
   identity: 'id-${appName}'
   webStorage: replace('web-${appName}', '-', '')
   openAi: 'openai-${appName}'
   ai: 'ai-${appName}'
-}
-
-module storage 'storage.bicep' = {
-  scope: resourceGroup()
-  name: 'storageDeploy'
-  params: {
-    storageAccountName: serviceNames.storage
-    location: location
-  }
 }
 
 module cosmosDb 'cosmos.bicep' = {
@@ -57,19 +46,6 @@ module eventHub 'eventhub.bicep' = {
     eventHubNamespace: serviceNames.eventHub
     location: location
   }
-}
-
-#disable-next-line BCP179
-module synapse 'synapse.bicep' = {
-  scope: resourceGroup()
-  name: 'synapseDeploy'
-  params: {
-    cosmosAccountName: serviceNames.cosmosDb
-    storageAccountName: serviceNames.storage
-    synapseServiceName: serviceNames.synapse
-    location: location
-  }
-  dependsOn: [storage, cosmosDb]
 }
 
 module logAnalytics 'loganalytics.bicep' = {
@@ -122,7 +98,6 @@ module containerApps 'containerapp.bicep' = {
   params: {
     aiConnectionString: logAnalytics.outputs.aiConnectionString
     cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
-    dataLakeAccountName: serviceNames.storage
     laWorkspaceId: logAnalytics.outputs.laWorkspaceId
     location: location
     name: appName
@@ -138,7 +113,6 @@ module permissions 'permissions.bicep' = {
   params: {
     cosmosAccountName: serviceNames.cosmosDb
     eventHubNamespaceName: serviceNames.eventHub
-    storageAccountName: serviceNames.storage
     openAiName: finalOpenAiName
     openAiResourceGroup: openAiRg
     apiPrincipalId: containerApps.outputs.apiPrincipalId
@@ -160,8 +134,6 @@ module staticwebsite 'staticwebsite.bicep' = {
 output config object = {
   suffix: suffix
   cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
-  dataLakeEndpoint: 'https://${serviceNames.storage}.dfs.${environment().suffixes.storage}'
-  dataLakeAccountName: serviceNames.storage
   eventHubNamespace: '${serviceNames.eventHub}.servicebus.windows.net'
   openAiEndpoint: isExternalRg ? openAiExternal!.outputs.endpoint : openAi!.outputs.endpoint
   openAiName: finalOpenAiName

@@ -7,9 +7,6 @@ param location string
 @description('Resource suffix')
 param suffix string
 
-@description('Datalake Account Name')
-param dataLakeAccountName string
-
 @description('CosmosDB endpoint')
 param cosmosEndpoint string
 
@@ -49,10 +46,6 @@ var containerAppConfigs = [
       transport: 'Auto'
     }
     env: [
-      {
-        name: 'AzureWebJobsStorage__accountName'
-        value: dataLakeAccountName
-      }
       {
         name: 'CoreClaimsCosmosDB__accountEndpoint'
         value: cosmosEndpoint
@@ -106,10 +99,6 @@ var containerAppConfigs = [
     }
     ingress: null
     env: [
-      {
-        name: 'AzureWebJobsStorage__accountName'
-        value: dataLakeAccountName
-      }
       {
         name: 'CoreClaimsCosmosDB__accountEndpoint'
         value: cosmosEndpoint

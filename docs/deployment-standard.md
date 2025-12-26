@@ -41,7 +41,7 @@ Follow the steps below to deploy the solution to your Azure subscription.
     git clone --recurse-submodules https://github.com/Azure/Medical-Claims-Transaction-Processing-at-scale.git
     ```
 
-1. Run the following script to provision the infrastructure and deploy the API and frontend. This will provision all of the required infrastructure, deploy the API and web app services into AKS, and provision and load artifacts into a Synapse Analytics workspace.
+1. Run the following script to provision the infrastructure and deploy the API and frontend. This will provision all of the required infrastructure and deploy the API and web app services into AKS.
 
     ```pwsh
     cd .\Medical-Claims-Transaction-Processing-at-scale
@@ -84,7 +84,6 @@ The following flags can be used to enable/disable specific deployment steps in t
 | stepDeployTls | Enables or disables SSL/TLS support on the AKS cluster in the resource group. Valid values are 0 (Disabled) and 1 (Enabled). See the `deploy/powershell/DeployTlsSupport.ps1` script.
 | stepDeployImages | Enables or disables deploying container images from the `CoreClaims.WebAPI` and `CoreClaims.WorkerService` projects. Valid values are 0 (Disabled) and 1 (Enabled). See the `deploy/powershell/Deploy-Images-Aks.ps1` or `deploy/powershell/Deploy-Images-Aca.ps1` script.
 | stepPublishSite | Enables or disables the build and deployment of the static HTML site to the hosting storage account in the target resource group. Valid values are 0 (Disabled) and 1 (Enabled). See the `deploy/powershell/Publish-Site.ps1` script.
-| stepSetupSynapse | Enables or disables the deployment of Synapse artifacts to the target synapse workspace. Valid values are 0 (Disabled) and 1 (Enabled). See the `deploy/powershell/Setup-Synapse.ps1` script.
 | stepLoginAzure | Enables or disables interactive Azure login. If disabled, the deployment assumes that the current Azure CLI session is valid. Valid values are 0 (Disabled).
 
 Example command:
@@ -98,7 +97,5 @@ cd deploy/powershell
                      -stepDeployCertManager 0 `
                      -stepDeployTls 0 `
                      -stepBuildPush 1 `
-                     -stepDeployImages 1 `
-                     -stepSetupSynapse 0 `
                      -stepPublishSite 1
 ```

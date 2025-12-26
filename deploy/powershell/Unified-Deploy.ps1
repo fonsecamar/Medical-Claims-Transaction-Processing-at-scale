@@ -15,7 +15,6 @@ Param(
     [parameter(Mandatory=$false)][bool]$stepDeployCertManager=$true,
     [parameter(Mandatory=$false)][bool]$stepDeployTls=$true,
     [parameter(Mandatory=$false)][bool]$stepDeployImages=$true,
-    [parameter(Mandatory=$false)][bool]$stepSetupSynapse=$true,
     [parameter(Mandatory=$false)][bool]$stepPublishSite=$true,
     [parameter(Mandatory=$false)][bool]$stepLoginAzure=$true
 )
@@ -78,7 +77,7 @@ if ($openAiName) {
 }
 
 # Calculate total steps based on deployment mode
-$totalSteps = if ($deployAks) { 8 } else { 6 }
+$totalSteps = if ($deployAks) { 7 } else { 5 }
 $currentStep = 0
 
 if ($stepDeployBicep) {
@@ -168,14 +167,6 @@ if ($stepDeployImages) {
     }
     if ($LASTEXITCODE -ne 0) { Write-Host "❌ Application deployment failed" -ForegroundColor Red; exit 1 }
     Write-Host "✓ Application deployed" -ForegroundColor Green
-}
-
-if ($stepSetupSynapse) {
-    $currentStep++
-    Write-Host "`n=== [$currentStep/$totalSteps] SETTING UP SYNAPSE ===" -ForegroundColor Cyan
-    & ./Setup-Synapse.ps1 -resourceGroup $resourceGroup
-    if ($LASTEXITCODE -ne 0) { Write-Host "❌ Synapse setup failed" -ForegroundColor Red; exit 1 }
-    Write-Host "✓ Synapse configured" -ForegroundColor Green
 }
 
 if ($stepPublishSite) {

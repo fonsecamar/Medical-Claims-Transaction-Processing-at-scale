@@ -4,9 +4,6 @@ param cosmosAccountName string
 @description('Event Hub namespace name')
 param eventHubNamespaceName string
 
-@description('Storage account name')
-param storageAccountName string
-
 @description('OpenAI service name')
 param openAiName string
 
@@ -29,10 +26,6 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existi
 
 resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-01-01' existing = {
   name: eventHubNamespaceName
-}
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
-  name: storageAccountName
 }
 
 // Cosmos DB SQL Role Definition (Contributor)
@@ -107,31 +100,6 @@ resource deployerEventHubAssignment 'Microsoft.Authorization/roleAssignments@202
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', eventHubDataOwnerRoleId)
     principalId: deployerPrincipalId
     principalType: 'User'
-  }
-}
-
-// Storage Blob Data Contributor role
-var storageBlobDataContributorRoleId = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
-
-// Assign Storage permissions to API
-resource apiStorageAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(storageAccount.id, apiPrincipalId, storageBlobDataContributorRoleId)
-  scope: storageAccount
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
-    principalId: apiPrincipalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
-// Assign Storage permissions to Worker
-resource workerStorageAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(storageAccount.id, workerPrincipalId, storageBlobDataContributorRoleId)
-  scope: storageAccount
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
-    principalId: workerPrincipalId
-    principalType: 'ServicePrincipal'
   }
 }
 

@@ -1,5 +1,3 @@
-azureWebJobsStorage:
-  accountName: "{{dataLakeAccountName}}"
 coreClaimsCosmosDb:
   accountEndpoint: "{{cosmosEndpoint}}"
 coreClaimsEventHub:

@@ -3,7 +3,8 @@
     "RunMode": "OneTime",
     "BatchSize": 10,
     "Verbose": true,
-    "SleepTime": 1000
+    "SleepTime": 1000,
+    "DataPath": "data"
   },
   "CoreClaimsCosmosDB": {
     "accountEndpoint": "https://dbcoreclaims{{suffix}}.documents.azure.com:443/"

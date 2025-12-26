@@ -51,8 +51,6 @@ $apiUrl = "https://${webappHostname}/api"
 $tokens = @{}
 $tokens.suffix = $bicepConfig.suffix
 $tokens.cosmosEndpoint = $bicepConfig.cosmosEndpoint
-$tokens.dataLakeEndpoint = $bicepConfig.dataLakeEndpoint
-$tokens.dataLakeAccountName = $bicepConfig.dataLakeAccountName
 $tokens.eventHubNamespace = $bicepConfig.eventHubNamespace
 $tokens.openAiEndpoint = $openAi.properties.endpoint
 $tokens.openAiCompletionsDeployment = $bicepConfig.openAiCompletionsDeployment
@@ -77,8 +75,6 @@ $configFiles = @(
     @{ template = "..,..,src,CoreClaims.Publisher,settings.template.json"; output = "..,..,src,CoreClaims.Publisher,settings.json"; name = "Publisher settings" }
     @{ template = "..,..,src,CoreClaims.WebAPI,appsettings.Development.template.json"; output = "..,..,src,CoreClaims.WebAPI,appsettings.Development.json"; name = "WebAPI settings" }
     @{ template = "..,..,src,CoreClaims.WorkerService,appsettings.Development.template.json"; output = "..,..,src,CoreClaims.WorkerService,appsettings.Development.json"; name = "WorkerService settings" }
-    @{ template = "..,..,synapse,linkedService,CoreClaimsDataLake.template.json"; output = "..,..,synapse,linkedService,CoreClaimsDataLake.json"; name = "Synapse DataLake" }
-    @{ template = "..,..,synapse,linkedService,CoreClaimsCosmosDb.template.json"; output = "..,..,synapse,linkedService,CoreClaimsCosmosDb.json"; name = "Synapse CosmosDB" }
     @{ template = "..,..,ui,medical-claims-ui,env.template"; output = "..,..,ui,medical-claims-ui,.env.local"; name = "UI env" }
 )
 

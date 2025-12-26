@@ -24,23 +24,12 @@ var serviceNames = {
   functionApp: replace('fa-${appName}', '-', '')
   servicePlan: 'asp-${appName}'
   eventHub: replace('eh-${appName}', '-', '')
-  storage: replace('adl-${appName}', '-', '')
-  synapse: 'synapse-${appName}'
   identity: 'id-${appName}'
   webStorage: replace('web-${appName}', '-', '')
   openAi: 'openai-${appName}'
   apimi: 'mi-api-${appName}'
   workermi: 'mi-worker-${appName}'
   ai: 'ai-${appName}'
-}
-
-module storage 'storage.bicep' = {
-  scope: resourceGroup()
-  name: 'storageDeploy'
-  params: {
-    storageAccountName: serviceNames.storage
-    location: location
-  }
 }
 
 module cosmosDb 'cosmos.bicep' = {
@@ -59,19 +48,6 @@ module eventHub 'eventhub.bicep' = {
     eventHubNamespace: serviceNames.eventHub
     location: location
   }
-}
-
-#disable-next-line BCP179
-module synapse 'synapse.bicep' = {
-  scope: resourceGroup()
-  name: 'synapseDeploy'
-  params: {
-    cosmosAccountName: serviceNames.cosmosDb
-    storageAccountName: serviceNames.storage
-    synapseServiceName: serviceNames.synapse
-    location: location
-  }
-  dependsOn: [storage, cosmosDb]
 }
 
 module aks 'AKS-Construction/bicep/main.bicep' = {
@@ -142,8 +118,6 @@ module staticwebsite 'staticwebsite.bicep' = {
 output config object = {
   suffix: suffix
   cosmosEndpoint: cosmosDb.outputs.cosmosAccountEndpoint
-  dataLakeEndpoint: 'https://${serviceNames.storage}.dfs.${environment().suffixes.storage}'
-  dataLakeAccountName: serviceNames.storage
   eventHubNamespace: '${serviceNames.eventHub}.servicebus.windows.net'
   openAiName: !empty(openAiName) ? openAiName : serviceNames.openAi
   openAiRg: openAiRg
