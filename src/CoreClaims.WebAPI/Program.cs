@@ -1,6 +1,5 @@
 
-using System.Text.Json.Serialization;
-using Azure.Core.Serialization;
+using Azure.Identity;
 using CoreClaims.Infrastructure;
 using CoreClaims.Infrastructure.BusinessRules;
 using CoreClaims.Infrastructure.Events;
@@ -8,12 +7,8 @@ using CoreClaims.Infrastructure.Repository;
 using CoreClaims.SemanticKernel;
 using CoreClaims.WebAPI.Components;
 using CoreClaims.WebAPI.Endpoints.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Azure.Identity;
+using System.Text.Json.Serialization;
 
 namespace CoreClaims.WebAPI
 {
